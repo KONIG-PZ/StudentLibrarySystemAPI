@@ -1,5 +1,8 @@
+
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using StudentLibrarySystem.Data;
+
 namespace StudentLibrarySystem
 {
     public class Program
@@ -10,14 +13,32 @@ namespace StudentLibrarySystem
 
             // Add services to the container.
 
-            builder.Services.AddDbContext<ApiContext>
-                (opt => opt.UseInMemoryDatabase("StudentDb"));
 
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            //React Connection
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowReact",
+                    policy => policy
+                    .WithOrigins("http://localhost:5173")
+                    .AllowAnyMethod()
+                    .AllowAnyHeader());
+            }
+            );
+
+            //Sql Connection (LocalHost)
+            builder.Services.AddDbContext<AppDbContext>(options =>
+                options.UseMySql(
+                        builder.Configuration.GetConnectionString("DefaultConnection"),
+                        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))
+                        
+                    )
+            );
 
             var app = builder.Build();
 
@@ -29,6 +50,8 @@ namespace StudentLibrarySystem
             }
 
             app.UseHttpsRedirection();
+
+            app.UseCors("AllowReact");
 
             app.UseAuthorization();
 

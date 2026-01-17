@@ -1,76 +1,106 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using StudentLibrarySystem.Data;
 using StudentLibrarySystem.Models;
+using StudentLibrarySystem.Models.Entities;
 
 namespace StudentLibrarySystem.Controllers
 {
-    [Route("api/[controller]/[action]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class StudentController : ControllerBase
     {
-        private readonly ApiContext _context;
+        private readonly AppDbContext dbContext;
 
-        //Context
-        public StudentController(ApiContext context)
+        public StudentController(AppDbContext dbContext)
         {
-            _context = context;
+            this.dbContext = dbContext;
         }
 
-        //Create/Edit
-        [HttpPost]
-        public JsonResult CreateEdit(Students students)
-        {
-            if (students.Id == 0)
-            {
-                _context.StudentInfo.Add(students);
-            }
-            else
-            {
-                var accountsInDb = _context.StudentInfo.Find(students.Id);
-
-                if (accountsInDb == null)
-                    return new JsonResult(NotFound());
-                accountsInDb = students;
-            }
-
-            _context.SaveChanges();
-            return new JsonResult(Ok(students));
-        }
-        //Get
+        //Get All
         [HttpGet]
-        public JsonResult Get(int Id)
+        public async Task<IActionResult> GetAllStudent()
         {
-            var result = _context.StudentInfo.Find(Id);
+            var allStudent = await dbContext.Students.ToListAsync();
+            return Ok(allStudent);
+        }
 
-            if(result == null)
-                return new JsonResult(NotFound());
+        //Post
+        [HttpPost]
+        public IActionResult AddStudent(AddStudentDto addStudentDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var studentEntity = new Students()
+            {
+                FirstName = addStudentDto.FirstName,
+                LastName = addStudentDto.LastName,
+                GradeLevel = addStudentDto.GradeLevel,
+                Email = addStudentDto.Email,
+                PhoneNumber = addStudentDto.PhoneNumber
+            };
+            dbContext.Students.Add(studentEntity);
+            dbContext.SaveChanges();
 
-            return new JsonResult(Ok(result));
+            return Ok(studentEntity);
+        }
+        //Get Id
+        [HttpGet("{id:guid}")]
+        public IActionResult GetStudentById(Guid id)
+        {
+            try
+            {
+                var student = dbContext.Students.Find(id);
+
+                if (student is null)
+                {
+                    return NotFound("Student Not Found");
+                }
+                return Ok(student);
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, "An error occurred");
+            }
+        }
+        //Put
+        [HttpPut("{id:guid}")]
+        public IActionResult UpdateStudent(Guid id, UpdateStudentsDto updateStudentsDto)
+        {
+            var student = dbContext.Students.Find(id);
+            if (student is null)
+            {
+                return NotFound();
+            }
+            student.FirstName = updateStudentsDto.FirstName;
+            student.LastName = updateStudentsDto.LastName;
+            student.GradeLevel = updateStudentsDto.GradeLevel;
+            student.Email = updateStudentsDto.Email;
+            student.PhoneNumber = updateStudentsDto.PhoneNumber;
+
+            dbContext.SaveChanges();
+
+            return Ok(student);
+
         }
         //Delete
-        [HttpDelete]
-        public JsonResult Delete(int Id)
-            {
-            var result = _context.StudentInfo.Find(Id);
-
-            if (result == null)
-                return new JsonResult(NotFound());
-
-            _context.StudentInfo.Remove(result);
-            _context.SaveChanges();
-
-            return new JsonResult(NoContent());
-
-            }
-        //GetAll
-
-        [HttpGet()]
-        public JsonResult GetAll()
+        [HttpDelete ("{id:guid}")]
+        public IActionResult DeleteStudent(Guid id)
         {
-            var result = _context.StudentInfo.ToList();
+            var student = dbContext.Students.Find(id);
 
-            return new JsonResult(Ok(result));
+            if(student is null)
+            {
+                return NotFound();
+            }
+
+            dbContext.Students.Remove(student);
+            dbContext.SaveChanges();
+
+            return Ok();
         }
     }
 }
