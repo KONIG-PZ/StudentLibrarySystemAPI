@@ -5,7 +5,7 @@ import EditStudent from "./EditStudent";
 import DeleteStudent from "./DeleteStudent";
 import AllStudents from "./AllStudents";
 import SelectStudent from "./SelectStudent";
-<title>Student Management App</title>
+
 function Home() {
   let items = ["Select Student","Add Student", "Edit Student", "Delete Student", "All Students"];
   const [currentPage, setCurrentPage] = useState("home");
