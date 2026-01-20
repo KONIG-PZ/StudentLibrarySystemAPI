@@ -25,11 +25,13 @@ namespace StudentLibrarySystem
             {
                 options.AddPolicy("AllowReact",
                     policy => policy
-                    .WithOrigins("http://localhost:5173")
-                    .AllowAnyMethod()
-                    .AllowAnyHeader());
-            }
-            );
+                        .WithOrigins(
+                            "http://localhost:5173",   // React HTTP
+                            "https://localhost:5173"   // React HTTPS (if needed)
+                        )
+                        .AllowAnyMethod()
+                        .AllowAnyHeader());
+            });
 
             //Sql Connection (LocalHost)
             builder.Services.AddDbContext<AppDbContext>(options =>

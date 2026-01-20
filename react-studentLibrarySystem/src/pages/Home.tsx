@@ -1,5 +1,5 @@
 import { useState } from "react";
-import ListGroup from "../components/ListGroup";
+import ListGroup from "../features/students/components/ListGroup";
 import AddStudent from "./AddStudent";
 import EditStudent from "./EditStudent";
 import DeleteStudent from "./DeleteStudent";

@@ -47,6 +47,7 @@ namespace StudentLibrarySystem.Controllers
 
             return Ok(studentEntity);
         }
+
         //Get Id
         [HttpGet("{id:guid}")]
         public IActionResult GetStudentById(Guid id)
@@ -66,6 +67,7 @@ namespace StudentLibrarySystem.Controllers
                 return StatusCode(500, "An error occurred");
             }
         }
+
         //Put
         [HttpPut("{id:guid}")]
         public IActionResult UpdateStudent(Guid id, UpdateStudentsDto updateStudentsDto)
@@ -84,8 +86,8 @@ namespace StudentLibrarySystem.Controllers
             dbContext.SaveChanges();
 
             return Ok(student);
-
         }
+
         //Delete
         [HttpDelete ("{id:guid}")]
         public IActionResult DeleteStudent(Guid id)
@@ -102,5 +104,6 @@ namespace StudentLibrarySystem.Controllers
 
             return Ok();
         }
+
     }
 }
